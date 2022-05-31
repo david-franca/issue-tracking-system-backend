@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  db:
+    build: .docker/postgres
+    restart: always
+    tty: true
+    container_name: ${POSTGRES_HOST}
+    volumes:
+      - .docker/dbdata:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_NAME}
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: 'bridge'

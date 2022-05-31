@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+  role     Role
+  issues   Issue[]
+}
+
+model Issue {
+  id          Int      @id @default(autoincrement())
+  version     String
+  issue       String
+  autor       String
+  priority    Priority
+  createdAt   DateTime
+  description String
+  status      Status
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+}
+
+enum Priority {
+  BAIXA
+  ALTA
+  NORMAL
+}
+
+enum Status {
+  APROVADO           @map("Aprovado")
+  REPROVADO          @map("Reprovado")
+  NAO_SERA_REMOVIDO  @map("Não será removido")
+  DUPLICADO          @map("Duplicado")
+  NAO_E_ERRO         @map("Não é erro")
+  RESOLVIDO          @map("Resolvido")
+}
+
+enum Role {
+  MASTER
+  TESTER
+  DEVELOPER
+}
