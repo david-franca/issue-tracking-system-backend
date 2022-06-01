@@ -17,5 +17,7 @@ export const configOptions: ConfigModuleOptions = {
     DATABASE_URL: Joi.string().required(),
     SERVER_PORT: Joi.number().required(),
     SALT_NUMBER: Joi.number().required(),
+    JWT_SECRET: Joi.string().required(),
+    JWT_EXPIRATION_TIME: Joi.string().required(),
   }),
 };

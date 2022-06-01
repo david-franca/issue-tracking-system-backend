@@ -3,17 +3,17 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
-  Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBody,
-  ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiParamOptions,
@@ -32,8 +32,8 @@ import {
   unprocessableOptions,
   UserSwagger,
 } from '../../../common/swagger';
+import { notFoundOptions } from '../../../common/swagger/notFound.swagger';
 import { FindOneParams } from '../../../utils/findOneParams.util';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -45,19 +45,12 @@ const paramsOptions: ApiParamOptions = {
 };
 
 @ApiTags('users')
-@ApiUnprocessableEntityResponse(unprocessableOptions)
 @ApiBadRequestResponse(badRequestOptions)
 @ApiUnauthorizedResponse(unauthorizedOptions)
 @UseInterceptors(ErrorsInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiCreatedResponse(options('users', 'POST', UserSwagger))
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
 
   @Get()
   @ApiOkResponse(options('users', 'GET', UserSwagger))
@@ -71,27 +64,43 @@ export class UsersController {
       orderBy?: Prisma.UserOrderByWithRelationInput;
     },
   ): Promise<User[]> {
-    return this.usersService.findAll(params);
+    const users = await this.usersService.findAll(params);
+    users.forEach((user) => delete user.password);
+    return users;
   }
 
   @Patch(':id')
   @ApiParam(paramsOptions)
+  @ApiUnprocessableEntityResponse(unprocessableOptions)
+  @ApiNotFoundResponse(notFoundOptions)
   @ApiOkResponse(options('users', 'PATCH', UserSwagger))
-  update(@Param() { id }: FindOneParams, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update({ data: updateUserDto, where: { id } });
+  async update(
+    @Param() { id }: FindOneParams,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const userUpdated = await this.usersService.update({
+      data: updateUserDto,
+      where: { id: Number(id) },
+    });
+    delete userUpdated.password;
   }
 
   @Get(':id')
   @ApiParam(paramsOptions)
+  @ApiNotFoundResponse(notFoundOptions)
   @ApiOkResponse(options('users', 'GETBYID', UserSwagger))
-  async findOne(@Param('id') id: number): Promise<User> {
-    return this.usersService.findOne({ id });
+  async findOne(@Param() { id }: FindOneParams): Promise<User> {
+    const user = await this.usersService.findOne({ id: Number(id) });
+    delete user.password;
+    return user;
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @ApiParam(paramsOptions)
+  @ApiNotFoundResponse(notFoundOptions)
   @ApiNoContentResponse(options('users', 'DELETE'))
-  async delete(@Param('id') id: number) {
-    return this.usersService.remove({ id });
+  async delete(@Param() { id }: FindOneParams) {
+    return this.usersService.remove({ id: Number(id) });
   }
 }

@@ -1,3 +1,5 @@
+import * as cookieParser from 'cookie-parser';
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -31,6 +33,8 @@ async function bootstrap() {
     customSiteTitle: 'Issues Tracking System',
     swaggerOptions: { supportedSubmitMethods: [], persistAuthorization: true },
   });
+
+  app.use(cookieParser());
 
   await app.listen(3000);
 }

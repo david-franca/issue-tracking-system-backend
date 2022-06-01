@@ -6,9 +6,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
+
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    const createUser = await this.prisma.user.create({ data });
-    return createUser;
+    const user = await this.prisma.user.create({
+      data,
+      include: { issues: true },
+    });
+    return user;
   }
 
   async findAll(params: {
@@ -48,8 +52,7 @@ export class UsersService {
     where: Prisma.UserWhereUniqueInput;
   }) {
     const { where, data } = params;
-    const userUpdated = await this.prisma.user.update({ data, where });
-    return userUpdated;
+    return await this.prisma.user.update({ data, where });
   }
 
   async remove(where: Prisma.UserWhereUniqueInput) {

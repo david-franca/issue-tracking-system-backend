@@ -1,10 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
-import { Priority, Role, Status } from '@prisma/client';
+import { Priority, Status } from '@prisma/client';
 
 faker.setLocale('pt_BR');
 
 export class IssueSwagger {
+  @ApiProperty({ default: faker.datatype.number({ max: 100 }) })
+  id: number;
+
   @ApiProperty({ default: faker.datatype.number({ max: 100 }).toString() })
   version: string;
 

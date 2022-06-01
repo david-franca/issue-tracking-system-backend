@@ -15,6 +15,7 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiParamOptions,
@@ -33,6 +34,7 @@ import {
   unauthorizedOptions,
   unprocessableOptions,
 } from '../../../common/swagger';
+import { notFoundOptions } from '../../../common/swagger/notFound.swagger';
 import { FindOneParams } from '../../../utils/findOneParams.util';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
@@ -46,7 +48,6 @@ const paramsOptions: ApiParamOptions = {
 };
 
 @ApiTags('issues')
-@ApiUnprocessableEntityResponse(unprocessableOptions)
 @ApiBadRequestResponse(badRequestOptions)
 @ApiUnauthorizedResponse(unauthorizedOptions)
 @UseInterceptors(ErrorsInterceptor)
@@ -56,6 +57,7 @@ export class IssuesController {
 
   @Post()
   @ApiCreatedResponse(options('issues', 'POST', IssueSwagger))
+  @ApiUnprocessableEntityResponse(unprocessableOptions)
   create(@Body() createIssueDto: CreateIssueDto) {
     const data = { ...createIssueDto };
     delete data.userId;
@@ -82,26 +84,33 @@ export class IssuesController {
 
   @Patch(':id')
   @ApiParam(paramsOptions)
+  @ApiNotFoundResponse(notFoundOptions)
+  @ApiUnprocessableEntityResponse(unprocessableOptions)
   @ApiOkResponse(options('issues', 'PATCH', IssueSwagger))
   update(
     @Param() { id }: FindOneParams,
     @Body() updateIssueDto: UpdateIssueDto,
   ) {
-    return this.issuesService.update({ data: updateIssueDto, where: { id } });
+    return this.issuesService.update({
+      data: updateIssueDto,
+      where: { id: Number(id) },
+    });
   }
 
   @Get(':id')
   @ApiParam(paramsOptions)
+  @ApiNotFoundResponse(notFoundOptions)
   @ApiOkResponse(options('issues', 'GETBYID', IssueSwagger))
-  async findOne(@Param('id') id: number): Promise<Issue> {
-    return this.issuesService.findOne({ id });
+  async findOne(@Param() { id }: FindOneParams): Promise<Issue> {
+    return this.issuesService.findOne({ id: Number(id) });
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   @ApiParam(paramsOptions)
+  @ApiNotFoundResponse(notFoundOptions)
   @ApiNoContentResponse(options('issues', 'DELETE'))
-  async delete(@Param('id') id: number) {
-    return this.issuesService.remove({ id });
+  async delete(@Param() { id }: FindOneParams) {
+    return this.issuesService.remove({ id: Number(id) });
   }
 }
