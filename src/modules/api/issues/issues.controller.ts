@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -25,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { Issue, Prisma } from '@prisma/client';
 
+import JwtAuthenticationGuard from '../../../common/guards/jwt-authentication.guard';
 import { ErrorsInterceptor } from '../../../common/interceptors/errors.interceptor';
 import { PrismaParamPipe } from '../../../common/pipes';
 import {
@@ -51,6 +53,7 @@ const paramsOptions: ApiParamOptions = {
 @ApiBadRequestResponse(badRequestOptions)
 @ApiUnauthorizedResponse(unauthorizedOptions)
 @UseInterceptors(ErrorsInterceptor)
+@UseGuards(JwtAuthenticationGuard)
 @Controller('issues')
 export class IssuesController {
   constructor(private readonly issuesService: IssuesService) {}
