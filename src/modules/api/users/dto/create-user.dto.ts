@@ -6,6 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 export class CreateUserDto {
@@ -22,5 +23,6 @@ export class CreateUserDto {
 
   @IsEnum(Role)
   @IsNotEmpty()
+  @ApiProperty({ enum: Role })
   readonly role: Role;
 }

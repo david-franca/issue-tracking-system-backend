@@ -8,6 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@prisma/client';
 
 export class CreateIssueDto {
@@ -31,6 +32,7 @@ export class CreateIssueDto {
 
   @IsEnum(Priority)
   @IsNotEmpty()
+  @ApiProperty({ enum: Priority })
   priority: Priority;
 
   @IsDate()
@@ -45,6 +47,7 @@ export class CreateIssueDto {
 
   @IsEnum(Status)
   @IsNotEmpty()
+  @ApiProperty({ enum: Status })
   status: Status;
 
   @IsNumber()

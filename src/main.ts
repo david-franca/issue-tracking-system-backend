@@ -27,7 +27,10 @@ async function bootstrap() {
     .addTag('issues')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    customSiteTitle: 'Issues Tracking System',
+    swaggerOptions: { supportedSubmitMethods: [], persistAuthorization: true },
+  });
 
   await app.listen(3000);
 }
