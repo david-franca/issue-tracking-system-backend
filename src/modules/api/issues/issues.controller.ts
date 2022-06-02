@@ -1,7 +1,9 @@
+import { ForbiddenError } from '@casl/ability';
 import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -9,6 +11,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -24,8 +27,9 @@ import {
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { Issue, Prisma } from '@prisma/client';
+import { Issue, Prisma, Status } from '@prisma/client';
 
+import { RequestWithUser } from '../../../@types';
 import JwtAuthenticationGuard from '../../../common/guards/jwt-authentication.guard';
 import { ErrorsInterceptor } from '../../../common/interceptors/errors.interceptor';
 import { PrismaParamPipe } from '../../../common/pipes';
@@ -38,6 +42,8 @@ import {
 } from '../../../common/swagger';
 import { notFoundOptions } from '../../../common/swagger/notFound.swagger';
 import { FindOneParams } from '../../../utils/findOneParams.util';
+import { Action } from '../../casl/actions.enum';
+import { CaslAbilityFactory } from '../../casl/casl-ability.factory';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { IssuesService } from './issues.service';
@@ -56,18 +62,33 @@ const paramsOptions: ApiParamOptions = {
 @UseGuards(JwtAuthenticationGuard)
 @Controller('issues')
 export class IssuesController {
-  constructor(private readonly issuesService: IssuesService) {}
+  constructor(
+    private readonly issuesService: IssuesService,
+    private abilityFactory: CaslAbilityFactory,
+  ) {}
 
   @Post()
   @ApiCreatedResponse(options('issues', 'POST', IssueSwagger))
   @ApiUnprocessableEntityResponse(unprocessableOptions)
-  create(@Body() createIssueDto: CreateIssueDto) {
-    const data = { ...createIssueDto };
-    delete data.userId;
-    return this.issuesService.create({
-      ...data,
-      user: { connect: { id: createIssueDto.userId } },
-    });
+  create(
+    @Body() createIssueDto: CreateIssueDto,
+    @Req() { user }: RequestWithUser,
+  ) {
+    const ability = this.abilityFactory.createForUser(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Create, 'Issue');
+      const data = { ...createIssueDto };
+      return this.issuesService.create({
+        ...data,
+        status: Status.NOVO,
+        createdAt: new Date(),
+        user: { connect: { id: user.id } },
+      });
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @Get()
@@ -81,8 +102,17 @@ export class IssuesController {
       where?: Prisma.IssueWhereInput;
       orderBy?: Prisma.IssueOrderByWithRelationInput;
     },
+    @Req() { user }: RequestWithUser,
   ): Promise<Issue[]> {
-    return this.issuesService.findAll(params);
+    const ability = this.abilityFactory.createForUser(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Read, 'Issue');
+      return this.issuesService.findAll(params);
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @Patch(':id')
@@ -93,19 +123,39 @@ export class IssuesController {
   update(
     @Param() { id }: FindOneParams,
     @Body() updateIssueDto: UpdateIssueDto,
+    @Req() { user }: RequestWithUser,
   ) {
-    return this.issuesService.update({
-      data: updateIssueDto,
-      where: { id: Number(id) },
-    });
+    const ability = this.abilityFactory.createForUser(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Update, 'Issue');
+      return this.issuesService.update({
+        data: updateIssueDto,
+        where: { id: Number(id) },
+      });
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @Get(':id')
   @ApiParam(paramsOptions)
   @ApiNotFoundResponse(notFoundOptions)
   @ApiOkResponse(options('issues', 'GETBYID', IssueSwagger))
-  async findOne(@Param() { id }: FindOneParams): Promise<Issue> {
-    return this.issuesService.findOne({ id: Number(id) });
+  async findOne(
+    @Param() { id }: FindOneParams,
+    @Req() { user }: RequestWithUser,
+  ): Promise<Issue> {
+    const ability = this.abilityFactory.createForUser(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Read, 'Issue');
+      return this.issuesService.findOne({ id: Number(id) });
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -113,7 +163,18 @@ export class IssuesController {
   @ApiParam(paramsOptions)
   @ApiNotFoundResponse(notFoundOptions)
   @ApiNoContentResponse(options('issues', 'DELETE'))
-  async delete(@Param() { id }: FindOneParams) {
-    return this.issuesService.remove({ id: Number(id) });
+  async delete(
+    @Param() { id }: FindOneParams,
+    @Req() { user }: RequestWithUser,
+  ) {
+    const ability = this.abilityFactory.createForUser(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Delete, 'Issue');
+      return this.issuesService.remove({ id: Number(id) });
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 }

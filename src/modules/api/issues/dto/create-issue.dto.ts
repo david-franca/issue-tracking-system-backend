@@ -1,8 +1,7 @@
 import {
-  IsDate,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -35,10 +34,6 @@ export class CreateIssueDto {
   @ApiProperty({ enum: Priority })
   priority: Priority;
 
-  @IsDate()
-  @IsNotEmpty()
-  createdAt: Date;
-
   @MaxLength(500)
   @MinLength(2)
   @IsString()
@@ -46,11 +41,7 @@ export class CreateIssueDto {
   description: string;
 
   @IsEnum(Status)
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({ enum: Status })
   status: Status;
-
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number;
 }

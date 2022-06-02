@@ -86,6 +86,7 @@ export class UsersController {
       where: { id: Number(id) },
     });
     delete userUpdated.password;
+    return userUpdated;
   }
 
   @Get(':id')

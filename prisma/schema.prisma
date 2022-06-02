@@ -44,6 +44,7 @@ enum Status {
   DUPLICADO          @map("Duplicado")
   NAO_E_ERRO         @map("Não é erro")
   RESOLVIDO          @map("Resolvido")
+  NOVO               @map("Novo")
 }
 
 enum Role {

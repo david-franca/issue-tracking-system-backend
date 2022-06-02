@@ -22,15 +22,21 @@ export type AppAbility = PrismaAbility<
 export class CaslAbilityFactory {
   createForUser(user: User) {
     const AppAbility = PrismaAbility as AbilityClass<AppAbility>;
-    const { can, build } = new AbilityBuilder(AppAbility);
+    const { can, build, cannot } = new AbilityBuilder(AppAbility);
     if (user.role === 'MASTER') {
       can(Action.Manage, 'Issue');
     }
     if (user.role === 'DEVELOPER') {
       can([Action.Update, Action.Read], 'Issue');
+      cannot(Action.Delete, 'all').because(
+        'Only Scrum Masters can delete registers',
+      );
     }
     if (user.role === 'TESTER') {
       can([Action.Create, Action.Read], 'Issue');
+      cannot(Action.Delete, 'all').because(
+        'Only Scrum Masters can delete registers',
+      );
     }
 
     return build();
