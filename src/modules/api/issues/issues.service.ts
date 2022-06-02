@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Issue, Prisma } from '@prisma/client';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Issue, Prisma, User } from '@prisma/client';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -40,13 +45,25 @@ export class IssuesService {
     return issue;
   }
 
-  async update(params: {
-    data: Prisma.IssueUpdateInput;
-    where: Prisma.IssueWhereUniqueInput;
-  }) {
+  async update(
+    params: {
+      data: Prisma.IssueUpdateInput;
+      where: Prisma.IssueWhereUniqueInput;
+    },
+    user: User,
+  ) {
     const { where, data } = params;
-    const issueUpdated = await this.prisma.issue.update({ data, where });
-    return issueUpdated;
+    const issue = await this.prisma.issue.findUnique({ where });
+    if (issue.userId === user.id) {
+      const issueUpdated = await this.prisma.issue.update({ data, where });
+      return issueUpdated;
+    } else {
+      if (data.status === 'APROVADO' || data.status === 'REPROVADO') {
+        throw new ForbiddenException('You are not the author of the record');
+      }
+      const issueUpdated = await this.prisma.issue.update({ data, where });
+      return issueUpdated;
+    }
   }
 
   async remove(where: Prisma.IssueWhereUniqueInput) {

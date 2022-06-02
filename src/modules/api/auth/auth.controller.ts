@@ -57,7 +57,6 @@ export class AuthController {
   @ApiOkResponse({ type: UserSwagger, description: 'Login successfully.' })
   async logIn(@Req() request: RequestWithUser) {
     const user = request.user;
-    console.log(user);
     const cookie = this.authService.getCookieWithJwtToken(user.id);
     request.res.setHeader('Set-Cookie', cookie);
     delete user.password;

@@ -128,10 +128,13 @@ export class IssuesController {
     const ability = this.abilityFactory.createForUser(user);
     try {
       ForbiddenError.from(ability).throwUnlessCan(Action.Update, 'Issue');
-      return this.issuesService.update({
-        data: updateIssueDto,
-        where: { id: Number(id) },
-      });
+      return this.issuesService.update(
+        {
+          data: updateIssueDto,
+          where: { id: Number(id) },
+        },
+        user,
+      );
     } catch (error) {
       if (error instanceof ForbiddenError) {
         throw new ForbiddenException(error.message);
