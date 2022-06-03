@@ -1,3 +1,5 @@
+import { Response } from 'express';
+
 import {
   Body,
   Controller,
@@ -6,6 +8,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -57,10 +60,9 @@ export class AuthController {
   @ApiOkResponse({ type: UserSwagger, description: 'Login successfully.' })
   async logIn(@Req() request: RequestWithUser) {
     const user = request.user;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    request.res.setHeader('Set-Cookie', cookie);
+    const token = this.authService.getJwtToken(user.id);
     delete user.password;
-    return user;
+    return { ...user, token };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -68,7 +70,8 @@ export class AuthController {
   @Post('log-out')
   @ApiUnauthorizedResponse(unauthorizedOptions)
   @ApiOkResponse({ description: 'Log-out successfully' })
-  async logOut(@Req() request: RequestWithUser) {
+  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    //response.cookie('Authentication', )
     request.res.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return;
   }
@@ -81,9 +84,11 @@ export class AuthController {
       'Check if the current token is valid and get the data of the currently logged in user.',
   })
   @ApiUnauthorizedResponse(unauthorizedOptions)
-  authenticate(@Req() request: RequestWithUser) {
-    const user = request.user;
+  authenticate(@Req() req: RequestWithUser) {
+    const user = req.user;
+    const token =
+      req.body.token || req.query.token || req.headers['x-access-token'];
     delete user.password;
-    return user;
+    return { ...user, token };
   }
 }
