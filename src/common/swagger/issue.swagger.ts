@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority, Status } from '@prisma/client';
+import * as moment from 'moment';
 
 faker.setLocale('pt_BR');
 
@@ -20,8 +21,8 @@ export class IssueSwagger {
   @ApiProperty({ enum: Priority })
   priority: Priority;
 
-  @ApiProperty({ default: faker.date.recent().toLocaleString() })
-  createdAt: Date;
+  @ApiProperty({ default: moment(faker.date.recent()).format('DD/MM/YYYY') })
+  createdAt: string;
 
   @ApiProperty({ default: faker.lorem.words(8) })
   description: string;
