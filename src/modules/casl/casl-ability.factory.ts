@@ -23,13 +23,16 @@ export class CaslAbilityFactory {
     }
     if (user.role === 'DEVELOPER') {
       can([Action.Update], 'Issue');
+      cannot(Action.Delete, ['Issue', 'User']).because(
+        'Only Scrum Masters can delete registers',
+      );
     }
     if (user.role === 'TESTER') {
       can([Action.Create], 'Issue');
+      cannot(Action.Delete, ['Issue', 'User']).because(
+        'Only Scrum Masters can delete registers',
+      );
     }
-    cannot(Action.Delete, ['Issue', 'User']).because(
-      'Only Scrum Masters can delete registers',
-    );
     can(Action.Read, ['User', 'Issue']);
 
     return build({

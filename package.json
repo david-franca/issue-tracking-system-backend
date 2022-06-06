@@ -25,7 +25,12 @@
     "migrate:deploy": "npx prisma migrate deploy",
     "migrate:status": "npx prisma migrate status",
     "migrate:resolve": "npx prisma migrate resolve",
-    "prisma:studio": "npx prisma studio"
+    "prisma:studio": "npx prisma studio",
+    "prisma:seed": "npx prisma db seed",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@casl/ability": "^5.4.4",
@@ -44,6 +49,7 @@
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
     "joi": "^17.6.0",
+    "js-brasil": "^2.5.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
