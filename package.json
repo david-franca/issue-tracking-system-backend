@@ -25,12 +25,7 @@
     "migrate:deploy": "npx prisma migrate deploy",
     "migrate:status": "npx prisma migrate status",
     "migrate:resolve": "npx prisma migrate resolve",
-    "prisma:studio": "npx prisma studio",
-    "prisma:seed": "npx prisma db seed",
-    "seed": "ts-node prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "prisma:studio": "npx prisma studio"
   },
   "dependencies": {
     "@casl/ability": "^5.4.4",
