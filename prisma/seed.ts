@@ -2,6 +2,7 @@ import { hashSync } from 'bcrypt';
 
 import { faker } from '@faker-js/faker';
 import { Priority, Prisma, PrismaClient, Role, Status } from '@prisma/client';
+import * as moment from 'moment';
 
 const prisma = new PrismaClient();
 
@@ -56,7 +57,7 @@ for (let i = 0; i < 230; i++) {
     user: { connect: { id: randomUser } },
     autor: users[randomUser].username,
     description: faker.lorem.sentence(),
-    createdAt: faker.date.recent(10),
+    createdAt: moment(faker.date.recent(10)).format('DD/MM/YYYY'),
     issue: faker.lorem.words(3),
     priority: randTypes().randPriority,
     status: randTypes().randStatus,

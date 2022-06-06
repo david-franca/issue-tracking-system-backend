@@ -47,6 +47,7 @@ import { CaslAbilityFactory } from '../../casl/casl-ability.factory';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { IssuesService } from './issues.service';
+import * as moment from 'moment';
 
 const paramsOptions: ApiParamOptions = {
   name: 'id',
@@ -81,7 +82,7 @@ export class IssuesController {
       return this.issuesService.create({
         ...data,
         status: Status.NOVO,
-        createdAt: new Date(),
+        createdAt: moment(new Date()).format('DD/MM/YYYY'),
         user: { connect: { id: user.id } },
       });
     } catch (error) {

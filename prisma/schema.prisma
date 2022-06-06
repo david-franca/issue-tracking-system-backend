@@ -24,7 +24,7 @@ model Issue {
   issue       String
   autor       String
   priority    Priority
-  createdAt   DateTime
+  createdAt   String
   description String
   status      Status
   user        User     @relation(fields: [userId], references: [id])

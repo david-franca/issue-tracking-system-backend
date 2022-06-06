@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 
-import { AppService } from './app.service';
 import { configOptions } from './common/config/config.config';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AuthModule } from './modules/api/auth/auth.module';
@@ -22,7 +21,6 @@ import { PrismaModule } from './modules/prisma/prisma.module';
   ],
   controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

@@ -50,6 +50,7 @@
     "cookie-parser": "^1.4.6",
     "joi": "^17.6.0",
     "js-brasil": "^2.5.3",
+    "moment": "^2.29.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

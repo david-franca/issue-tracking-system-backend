@@ -19,7 +19,10 @@ export class CaslAbilityFactory {
     const AppAbility = PrismaAbility as AbilityClass<AppAbility>;
     const { can, build, cannot } = new AbilityBuilder(AppAbility);
     if (user.role === 'MASTER') {
-      can(Action.Manage, ['Issue', 'User']);
+      can(
+        [Action.Create, Action.Delete, Action.Read, Action.Update],
+        ['Issue', 'User'],
+      );
     }
     if (user.role === 'DEVELOPER') {
       can([Action.Update], 'Issue');
